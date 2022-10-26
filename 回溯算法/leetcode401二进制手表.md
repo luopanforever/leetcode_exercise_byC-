@@ -36,8 +36,6 @@
 输出：[]
 ```
 
- 
-
 **提示：**
 
 - `0 <= turnedOn <= 10`
@@ -56,4 +54,90 @@ for(int i = startIndex; i < 10; i++){
 
 这就是本题被扒光的情景，接下来就是根据题意一点一点的加限制条件
 
-。。。明天来写
+这道题被扒光了构造回溯抽象树太简单了，就不画了`hhh`
+
+这十个数就是上图二进制手表上的数字，用一个`vector`容器来保存
+
+- ```c++
+  vector<int> time{1, 2, 4, 8, 1, 2, 4, 8, 16, 32};
+  // 0-3代表小时，4-9代表分钟
+  ```
+
+先不管题目中要求返回字符串时间，我就用两个`int`型参数`hours`和`minites`来保存回溯提取的`time`，判断当前索引是在哪个区间就为哪个变量操作
+
+- ```c++
+  if(i >= 0 && i <= 3){ // 处理小时
+      hours += time[i];
+      // backtracking
+      hours -= time[i];
+  }else{                // 处理分钟
+      minites += time[i];
+      // backtracking...
+      minites -= time[i];
+  }
+  ```
+
+**递归三步**
+
+- 确定参数和返回值
+  - 遍历整棵回溯抽象树不需要返回值
+  - 参数列表：
+    - 需要一个`countIndex`来表示已经选择了多少个灯，用来参与终止条件
+    - 选过的灯不能再次选择，所以需要一个`startIndex`，用于递归回溯同一节点的下一个节点
+
+- 确定终止条件
+
+  - 当`countIndex == turnedOn`的时候就可以开始处理返回了
+
+  - 前面我们已经获得了两个变量，一个表示**小时**，一个表示**分钟**，要将其处理为`string`串，而且分钟需要格式化输出，不足两位的前面要补零，我用的方法是使用头文件`sstream`中的`ostringstream`和头文件`iomanip`中的`setw`和`setfill`，`int`转`string`用头文件`string`中的`to_string`函数
+
+    ```c++
+    if(countIndex == turnedOn){
+        if(hours > 11 || minites > 59) return ;
+        string hour = to_string(hours);
+        ostringstream minite;
+        minite << setw(2) << setfill('0') << minites;  // cout 是将数据输出到控制台， ostringstream是输出到其字符串流中  .str() 可以提取其中的字符
+        string maoHao = ":";
+        result.push_back(hour + maoHao + minite.str());
+    }
+    ```
+
+- 确定本层逻辑
+  - 前面已经分析
+
+**完整代码**
+
+```c++
+class Solution {
+public:
+    vector<string> result;
+    // countIndex当前层共使用了多少灯
+    void backtracking(vector<int> time,int turnedOn, int countIndex, int startIndex, int hours, int minites){
+        if(countIndex == turnedOn){
+            if(hours > 11 || minites > 59) return ;
+            string hour = to_string(hours);
+            ostringstream minite;
+            minite << setw(2) << setfill('0') << minites; 
+            string maoHao = ":";
+            result.push_back(hour + maoHao + minite.str());
+        }
+        for(int i = startIndex; i < time.size(); i++){
+            if(i >= 0 && i <= 3){ // 处理小时
+                hours += time[i];
+                backtracking(time, turnedOn, countIndex + 1, i + 1, hours, minites);
+                hours -= time[i];
+            }else{                // 处理分钟
+                minites += time[i];
+                backtracking(time, turnedOn, countIndex + 1, i + 1, hours, minites);
+                minites -= time[i];
+            }
+        }
+    }
+    vector<string> readBinaryWatch(int turnedOn) {
+        vector<int> time{1,2,4,8,1,2,4,8,16,32};  // hours:0-3 minites:4-9
+        backtracking(time,turnedOn, 0, 0, 0, 0);
+        return result;
+    }
+};
+```
+
