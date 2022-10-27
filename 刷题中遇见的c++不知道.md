@@ -309,3 +309,12 @@ void *(memset)(void * s, int c, size_t n)  // 查看内存 也是小端存储
 }
 ```
 
+## `bzero`函数
+
+```c++
+char buf[1024] = {0};
+//... 修改了buf
+// 使用bzero重置数据为全0
+bzero(buf, sizeof(buf));
+```
+
