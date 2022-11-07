@@ -68,3 +68,26 @@
   - 根据例子`[10,15,20]`
 
     `dp->[0, 0, 10, 15]`
+
+**完整代码**
+
+```c++
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        
+        // dp数组含义，到i层所需要的最低花费
+        // 确定递推公式，dp[i] = min(dp[i-1] + cost[i-1], dp[i - 2] + cost[i - 2]);
+        // 初始化dp数组  dp[0] = 0;  dp[1] = cost[0];
+        // 确定推导顺序  自底向上
+        vector<int> dp(cost.size() + 1);
+        dp[0] = 0;
+        dp[1] = 0;
+        for(int i = 2; i<= cost.size(); i++){
+            dp[i] = min(dp[i-1] + cost[i-1], dp[i - 2] + cost[i - 2]);
+        }
+        return dp[cost.size()];
+    }
+};
+```
+
